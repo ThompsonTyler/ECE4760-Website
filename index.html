@@ -1,0 +1,512 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>ECE 4760: Targeting System</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+	</head>
+	<body>
+
+		<!-- Sidebar -->
+			<section id="sidebar">
+				<div class="inner">
+					<nav>
+						<ul>
+							<li><a href="#intro">Introduction</a></li>
+							<li><a href="#high">High Level Design</a></li>
+							<li><a href="#cam">Camera</a></li>
+							<li><a href="#serv">Aiming Mechanism</a></li>
+                            <li><a href="#data">Data Processing</a></li>
+                            <li><a href="#res">Results and Conclusion</a></li>
+                            <li><a href="#app">Appendix</a></li>
+						</ul>
+					</nav>
+				</div>
+			</section>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Intro -->
+					<section id="intro" class="wrapper style1 fullscreen fade-up">
+						<div class="inner">
+							<h1>ECE 4760: Targeting System</h1>
+                            <h2>Tyler Thompson (tt395) & Steve Slaughter (sts55)</h2>
+							<p>A PIC32 Powered autonomous targeting system that identifies a target and fires a laser at it. </br>
+                            Created for Cornell University ECE 4760. See other projects <a href="http://people.ece.cornell.edu/land/courses/ece4760/FinalProjects/">here</a>.</p>
+							<ul class="actions">
+								<li><a href="#high" class="button big scrolly">Learn more</a></li>
+							</ul>
+						</div>
+					</section>
+
+				<!-- One -->
+					<section id="high" class="wrapper style2 spotlights">
+						<section>
+							<a class="image"><img src="images/overall.jpg" alt="" data-position="center center" /></a>
+							<div class="content">
+								<div class="inner">
+									<h2>Project Inspiration</h2>
+									<p2>The initial idea was to create an automous navigation robot that was designed to navigate a maze, find a target, and "hit" it in some way. This original intention was well beyond the possibility of what could be completed given the constraints of the project. To reduce the scope, only the targeting mechanism was pursued because it seemed to be the more creative half of the original goal.
+</br></br>The system is designed to work with a python script run on a laptop to generate white targets on a black background.</p2>
+								</div>
+							</div>
+						</section>
+						<section>
+							<a class="image"><img src="images/flow.jpg" alt="" data-position="top center" /></a>
+							<div class="content">
+								<div class="inner">
+									<h2>Logical Flow</h2>
+									<p>The left indicates the basic logical flow through the device. The red path is followed on the first iteration, the white indicates any further iterations.</p>
+									<ul class="6u$ 12u$(medium)">
+										<h3> Red Path </h3>
+                                        <ol>
+                                            <li>Setup Camera</li>
+                                            <li>Read Camera Data</li>
+                                            <li>Process Data</li>
+                                            <li>Write Servos</li>
+                                        </ol>
+                                        <h3> White Path </h3>
+                                        <ol>
+                                            <li>Read Camera Data</li>
+                                            <li>Process Data</li>
+                                            <li>Write Servos</li>
+                                        </ol>
+									</ul>
+								</div>
+							</div>
+						</section>
+						<section>
+							<a href="#cam" class="image"><img src="images/cam.jpg" alt="" data-position="25% 25%" /></a>
+							<div class="content">
+								<div class="inner">
+									<h2>Camera</h2>
+									<p>The camera utilized was an OV7670. This camera is a CMOS image sensor that is fairly commonly used. Cameras are not often
+                                    utilized with PIC32's due to their contraints on size and speed, but we saw this as a challenge, especially with the lacking amount of
+                                    documentation available.</br>The standards that are applicable to the camera include:</br>
+                                    <b>SCCB[1]</b></br>SCCB (Serial Camera Control Bus) is a protocol defined and deployed by OmniVision Technologies Inc. for control of 
+                                    most of the functions in the OmniVision’s family of CAMERACHIPTM sensors.
+                                    </p>
+									<ul class="actions">
+										<li><a href="#cam" class="button">More about the Camera</a></li>
+									</ul>
+								</div>
+							</div>
+						</section>
+                        <section>
+							<a href="#serv" class="image"><img src="images/laser.jpg" alt="" data-position="25% 25%" /></a>
+							<div class="content">
+								<div class="inner">
+									<h2>Aiming Mechanism</h2>
+									<p>The aiming mechanism utilizes 2 J-Deal SG90 Micro Servos to create a 2-Axis Pan and Tilt mount system that houses a
+                                    WYHP 6mm Mini Laser Diode. One concern with using a laser was the focus amount and the ability to control it.  The laser diode came with a 
+                                    variable lens, so this allowed us to focus it into a small beam for our desired outcome.</br>The standards that are applicable to the laser include:</br>
+                                    <b>ANSI Z136[2]</b></br>ANSI Z136 are the standards for the "safe use" of lasers.
+                                    </p>
+									<ul class="actions">
+										<li><a href="#serv" class="button">More about the Aiming Mechanism</a></li>
+									</ul>
+								</div>
+							</div>
+						</section>
+					</section>
+
+				<!-- Two -->
+					<section id="cam" class="wrapper style3 fade-up">
+						<div class="inner">
+                            <h1>Camera</h1>
+							<h2>Why a camera?</h2>
+							<p>Our original intention was to develop a system that could identify a certain target within a very messy background, this meant
+                            that we needed to know all of the information in front of it, leading to the only device we could think of being a camera. The
+                            camera had to be driven by a microcontroller, so we looked towards a CMOS sensor and eventually ran into the OV7670. After some
+                            research we found that it would have many complications with selection, but we felt that we were up to the challenge after seeing
+                            some others have success with other microcontrollers.</p>
+                            <h2>PIC32 Limitations</h2>
+                            <p>The OV7670 utilizes a parallel output across 8 pins, this meant that within the time cycle that the data is available we must pull
+                            all of the data using the PIC and be ready for the next set of data in a very short timeframe. We also needed to store the data somewhere,
+                            with the data taking up 2 bytes of data each (rgb565 format, detailed below). The Native resolution of the camera was 640x480 this would result
+                            in 640*480*2 = 614kB... which is much higher than our available 32kB of data on the microStick II. This meant that we needed to find a way to change
+                            the resolution if we were to have any chance to grab all of the information off the camera. This is where SCCB came in.</p>
+                            <h2>SCCB</h2>
+                            <p>After some research we identified that the method to write to the registers of the camera was to utilize SCCB, a communication protocol created by OmniVision.
+                            When researched, it was found that many people had different opinions and approaches to dealing with SCCB, some considered it just I2C with a different name, and others
+                            said it was close to I2C, but not close enough to use the same methods. With this, we took an initial approach and tried just using I2C with no luck. This meant that
+                            we needed to understand SCCB and be able to write our own methods to communicate using SCCB.</br> The overall idea that
+                            we found is that SCCB is basically I2C with out acknowledgements. The 9th bit on the byte of data that is usually an acknowledgement is just a "Don't Care" bit.</p>
+                            </br>
+                            <figure>
+                                <img src="images/sccb.jpg" align="middle">
+                                <figcaption><sub>Fig1. - SCCB 3-Phase Transmission Circle.</sub></br> </figcaption>
+                            </figure>
+                            </br>
+                            Once this was setup we were able to start writing to the registers of the camera, in order to accomplish what we desired we had a few
+                            different settings we needed to apply. The registers were identified using the <a href="http://www.voti.nl/docs/OV7670.pdf">ov7670 data sheet</a>.</br>
+                            </br>
+                            <ol>
+                                <li>Write the prescalar for the pixel clock to 128, this meant that on each pixel we would have 128 times the frequency of XCLK to access
+                                each bit, 128 being the max. This was done to give us the best chance of grabbing all of the data.</li>
+                                </br>
+                                <li>The default output format is VGA which is 640*480, this is extremely large for what was desired, and so we switched it to QCIF, which is only 176*144
+                                Now, if the math is done 176*144*2 = 50.1kB which still puts us above the data size on the PIC, but if we only grab every other X pixel we instead push the 
+                                effective resolution to 87*144, which 87*144*2 = 25kB which fits on our PIC! In order to change the resolution we also needed to set a second register that enabled scaling.</li>
+                                </br>
+                                <li>Next we had some odd results and so we found out that our camera's default was set to an inverted mode. To deal with this we wrote to the register to make sure that it
+                                was set to the normal mode.</li>
+                                </br>
+                                <li>We wanted to grab all of the color data from the camera, and because this was being output to a TFT display for development testing purposes we
+                                wanted to utilize the least amount of conversion. The TFT displays color using rgb565 where the color is split up over 2bytes, with the first 5 bits representing
+                                red, the next 6 being green, and the last 5 being blue, hence the name rgb565. This meant if we set our camera's output to rgb565 we would not need any additional conversion.</li>
+                                </br>
+                                <li>As we will look at next, the signal for PCLK is designed to be continuously running. We did want this as it would mess up our control sequence of grabbing all the data
+                                , so we set it to not toggle during a horizontal break.</li>
+                            </ol>
+                             </p>
+                             <h2>Wiring the camera</h2>
+                             <p>The camera overall had 16 pins, 2 of them being ground and power, because the microStick II outputs 3.3v we were able to use only the PIC
+                             to power the camera.</br></p>
+                             <ul>
+                                <h3>Pin Connections(Pin Microstick II : pin ov7670 - description)</h3>
+                                <li>21 : D0 - Pin that output the data for digit 0</li>
+                                <li>2   : D1 - Pin that output the data for digit 1</li>
+                                <li>3   : D2 - Pin that output the data for digit 2</li>
+                                <li>7   : D3 - Pin that output the data for digit 3</li>
+                                <li>11 : D4 - Pin that output the data for digit 4</li>
+                                <li>24 : D5 - Pin that output the data for digit 5</li>
+                                <li>9   : D6 - Pin that output the data for digit 6</li>
+                                <li>26 : D7 - Pin that output the data for digit 7</li>
+                                <li>12 : HREF - Pin that indicated an active row of pixels. Active High</li>
+                                <li>14 : VSYNC - Pin that indicated the start of a new image. Active High</li>
+                                <li>16 : PCLK - Pin that indicated start of a new byte of data. Active High</li>
+                                <li>10 : XCLK - Pin that took in the clock input to drive the camera</li>
+                                <li>17 : SCL - Clock pin for SCCB communication, had a 5.1k pull-up resistor</li>
+                                <li>18 : Sdata - Data pin for SCCB communication, had a 5.1k pull-up resistor</li>
+                            </ul>
+                            <h2>Data Configuration</h2>
+                            <p>The output format of the camera can be RGB 565/555/444, YUV(4:2:2), or YCbCr(4:2:2). We originally wanted color and so we looked
+                            towards rgb565 to getting a proper output. We looked towards the data sheet to see the correct output pattern of the camera based on rgb565.
+                            This can be seen below as detailed by OmniVision.</br>
+                            <figure>
+                                <img src="images/rgb565.jpg" align="middle">
+                                <figcaption><sub>Fig2. - RGB565 output information</sub></br> </figcaption>
+                            </figure>
+                            </br>
+                            Our approach of taking every other pixel was then compressed even more by taking the first 4 bits of the first byte of pixel 1 on the first pixel clock,
+                            the first 4 bits of the second byte of pixel 1, and then the second 4 bits of the first byte of pixel 2 and the last 4 bits of the second byte of pixel 2. These 
+                            bits were all then concatenated together to form a short that collectively held the rgb565 data of 2 pixels contained in 1 slot of data. In addition, all of our 
+                            computation was completed in a sequence built upon while loops and did not utilize interrupts because we did not have the time to spare for the waiting for 
+                            going into an ISR and did not want an interrupt possibly disrupting a sequence and destroying our data. We also looked into pulling the data using a parallel bus, but
+                            our PIC32 module does not have that capability and did not have enough pins in a row in a register to develop our own workaround of accomplishing
+                            a similar result.
+                            </br>
+                            Our initial approach resulted in some weird color artifacts and distortions that initially discouraged us away from using rgb565, this is evidenced below.
+                            <figure>
+                                <img src="images/artifact.jpg" width="400">
+                                <figcaption><sub>Fig3. - Color artifact output</sub></br> </figcaption>
+                            </figure>
+                            </br>
+                            And so, we looked into using YUV to just grab black and white data, and then rgb 444 to see if we could somehow pull the data faster. None of these resulted
+                            in anymore luck, if anything they were even worse than the rgb565. So we returned back to rgb565 and aimed to just complete a lot more image processing
+                            on the resultant data.
+                            </p>
+							<ul class="actions">
+								<li><a href="#data" class="button">Data Processing</a></li>
+							</ul>
+						</div>
+					</section>
+                    
+                    <section id="serv" class="wrapper style3 fade-up">
+                        <div class="inner">
+                            <h1>Aiming Mechanism</h1>
+                            <h2>Why this method?</h2>
+                                <p>Our initial intention was to use something such as a nerf-gun for hitting the target as it would be very entertaining, but constraints of being a class project
+                                prevented us from utilizing a projectile weapon. We still wanted a method of "hitting" the target, so we turned to a laser, that when controlled in the correct manner, is safe for use.
+                                This also meant we had some standards to abide by, which were thought of in the design of the mechanism.</br>Next we needed to actually aim the laser, we only needed to aim horizontally and
+                                vertically and did not care about the rotation of the laser and so decided on designing a 2-axis tilt/pan mount. We wanted it to be very small so that the laser could basically be treated as a point source,
+                                but it also needed to be accurate, so we decided upon taking small servos and connecting them to provide the functionality of the 2-axis rotation to the laser.</p>
+                                <p></br>The laser and servos were connected to the PIC32 using the following wiring connections, with power and ground to the servos being provided by the pic, as well as the ground of the laser:</br></p>
+                                <ul>
+                                    <h3>Pin Connections(Pin Microstick II : pins - description)</h3>
+                                    <li>4 : Signal Servo Pan - Controls the panning of the mechanism</li>
+                                    <li>5 : Signal Servo Tilt - Controls the tilting of the mechanism</li>
+                                    <li>6 : Laser Power - Turns the laser on and off </li>
+                                </ul>
+                                <h2>Data Configuration</h2>
+                                <p>After some tinkering with the servos and research, we found that in order to control the servos, we needed to send signal with a 20ms duty cycle. The signals needed to be high for somewhere around
+                                600us to 2500us, depending on the desired rotation amount. 600us being all the way in one direction and 2500us being all the way in the other direction. This needed to be repeated until the servo reached it's final position.
+                                The laser was much easier, it was on with a high signal, off for a low signal.</p>
+                                <h2>Calibration</h2>
+                                <p>In order to correctly aim our laser at our target we needed to create some consistency to do some calculations from. This resulted in us constructing a casing for the camera, the aiming mechanism, and the microcontroller, as seen below:</p>
+                                <figure>
+                                <img src="images/overall.jpg" width="400">
+                                <figcaption><sub>Fig4. - System Casing</sub></br> </figcaption>
+                                </figure>
+                                <p></br>Calibration was then completed by writing to the servos and finding the outputs needed to hit the 4 corners of the screen. These were identified to be (pan, tilt):</br>
+                                (1520, 1775) for bottom left. </br> (1520, 2060) for top left. </br> (1088,1975) for top right. </br> (1088,1775) for the bottom right. </br>
+                                From this information and the information from the camera, we were able to aim at the target and fire upon it, this is detailed in the next section on processing the data.
+                                </p>
+                                <ul class="actions">
+								<li><a href="#data" class="button">Data Processing</a></li>
+							</ul>
+                        </div>
+                     </section>
+                
+                <section id="data" class="wrapper style3 fade-up">
+                    <div class="inner">
+                        <h1>Data Processing</h1>
+                         <h2>Targeting Program</h2>
+                         <p>A program was written in python that randomly generated white squares on a black background, which functioned as targets for our system. This served a few purposes. First of all, it forced the laser to be shot at an inanimate object that was not sensitive to a laser and would prevent anyone from being hit by the laser, providing the much required safety of working with a laser. In addition, our camera and it's artifacting seemed to show a pattern. The white tended to be mostly white on in our data, albeit extremely distorted, and anything else tended to be extremely artifacted. From this, we took the approach of finding the only bits that are white in the data and ignoring the rest in order to find the target.</p>
+                         <h2>Thresholding</h2>
+                         <p>Our approach of getting only the white was built upon that fact that white is equivalent to and rgb565 of 0xFFFF. This meant that if we thresholded the image to white if the data was above
+                         0xF800 then we had a decent result of only showing the white portion of the data. This can be seen below.</br></p>
+                         <figure>
+                                <img src="images/white.jpg" width="400">
+                                <figcaption><sub>Fig4. - White thresholded output</sub></br> </figcaption>
+                         </figure>
+                         </br><h2>Centroid</h2>
+                         <p>From the thresholded data, we needed to "find" the target. This was completed by looking at the data, and for each pixel that was still white, the X and Y value were summed. Then when the entire image was looked at, the summations were divided by the number of points still white, this resulted in getting the average X and Y values of the white pixels in the image in order to find a possible centroid. This can be seen on the displayed image as indicated by a small red circle.
+</br></p>
+                         <figure>
+                                <img src="images/centroid.jpg" width="400">
+                                <figcaption><sub>Fig5. - Centroid output</sub></br> </figcaption>
+                            </figure>
+                          </br><h2>Persistence</h2>
+                          <p>Now, we know that the image has an insane amount of noise and is extremely succeptible to light changes. This meant that we needed to design a system to be able to deal with this. Our idea was to make sure that there is a target as the location by keeping track of the current marked centroid and the centroid from the last frame. If these centroids were within 10 pixels of each other in the x and y direction, then the system would make an attempt to hit it with the laser. Otherwise the target is unsure and therefore the laser was shut off.
+</p>
+                          <h2>Aiming the servos</h2>
+                          Now that we had an idea of an X and Y pixel location, we needed to actually write the servos to aim the laser. This was done using a somewhat arbitrary calculation. With the large amounts of distortion of the camera and the fact that the laser was in the corner of the laptop, we had to take two non-linear functions that we did not know exactly and try to line them up. The x values on the image matched with the y value of the servo, and the y value of the image matchd with the x value of the servo.The initial approach was to base both sets of data off the bottom left being "0,0" and then treating them as linear from there, changing the servo amount by the same percentage of the x and y as the centroid compared to the overall data. This worked decently, but had a lot of misses. The next approach was to attentuate the centroid in order to compensate for the distortion. This was done by multiplying pixel values by a constant. This resulted in the extremes opposite of the servo to be better (but still not that great) while the closer values were terrible. So the image was split up. If passed the center of the image for x, then the x value was attenuated and a value added to push it further right. If left of the center, it was purely attentuated. The y change was slightly different. It was much more non-linear for the servos and therefore needed a different approach. If on the bottom of the image the target is both pushed down a bit and the pixel value is actually divided by a constant to make it have a lower influence. Above the center line it is still pushed down, but the value is attenuated once again.
+
+                          </br> The resultant equations are below (where xTarg is the value for the servo that pans, yTarg is the value for the servo that tilts, xs is the x value of the image and ys is the y):
+                          </br></p><pre><code>
+if(ys > 50){
+    xTarg = 1520 - (float)(1500-1088) * (1.-((145.-ys*1.05-30)/145.));
+}
+else{
+    xTarg = 1520 - (float)(1500-1088) * (1.-((145.-ys*1.05)/145.));
+}
+    
+if(xs > 40){
+    yTarg = 1800 + (float)(2000-1800) * (1.-((88. - xs*1.1 - 30)/88.));
+}
+else{
+    yTarg = 1800 + (float)(2000-1800) * (1.-((88. - xs*0.8 - 30)/88.));
+}
+   </code></pre>
+   <ul class="actions">
+								<li><a href="#res" class="button">See it in action!</a></li>
+							</ul>
+   
+                    
+                    </div>
+                </section>
+                <section id="res" class="wrapper style3 fade-up">
+                <div class="inner">
+                    <h1>Results and Conclusion</h1>
+                    <h2>Video</h2>
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/NG-8ROYoR18" frameborder="0" allowfullscreen></iframe>
+                    <h2>Errors</h2>
+                    <p>Our results ended with around 85% accuracy in non-ideal situations, but would have an extremely low miss rate in an ideal and stable situation. Usually, if the system gets a good reading on the camera, it results in a hit on the target.
+</p>
+
+                   <h2>Analysis</h2>
+                    <p>Overall our results exceeded our expectations. Once we began working with the camera, we were not sure if we would be able to get any form of data, let alone be able to actually use the data in achieving our original goal. Due to the sensitivity to light in addition to the huge distortion of the lens on the camera, we did have locations of our targets that were much worse than others. If a target was generated directly in the center, the distortion would cause it to basically take up the entire screen of data, and this made the centroid almost entirely based on where the light was affecting it. Sometimes this would result in a hit, other times it wouldn't. It also struggled at the extreme edges. We think this is mostly because we didn't actually know where the camera was focused and what was in view, which may have meant the camera was not fully reading the edges. We also can attribute some error to our equation of going from the camera to the servos. If we knew the lens better, we could find an equation for the distortion and be able to just solve the two equations for where they would intersect. If we were to recreate this project, we would try to find a better way of interfacing the camera or looking for a different camera that would allow for a much clearer result for us to gather data from.
+</p>
+                
+                    <h2>Standards</h2>
+                    <p>Our only major standard we had to adhere to was also our biggest requirement for safety: the laser. We made sure that the laser was never pointed towards anyone and the code is designed in a way that, assuming the system is being operated correctly, the laser will never point outside of the bounds of the laptop screen.
+</p>
+                    <h2>Intellectual Property</h2>
+                    <p>The methods of interaction with the hardware was identified through data sheets accessed online that were referenced earlier in the page. The setup for the device was created by ourselves.
+                    The code that was utilized was written by ourselves with header files and souce files for libraries, configuration, and various helper functions being utilized from class files for ECE4760 that were created by
+                    Bruce Land and Syed Tahmid Mahbub. Currently no action is being seeked regarding patents or publishing.</p>
+                    <h2>Ethical Considerations</h2>
+                    <p>Our project adheres to the IEEE Code of Ethics. Our project and the materials used for development were not utilized to inflict any harm or pose any threat to others. The laser on our device is known
+                    and it's use is made known to those who interact with the device. The system is created and works in the fashion and to the ability as addressed so far on this site. </br>
+                    All work that we have indicated as our own has been created by ourselves, and if not has been referenced to the creator of said information.</br>
+                    This project was created as a class project and therefore we are open to any and all honest criticism from others, as well as are willing to assist others with any complications they have regarding our work. 
+                    This is one of the many projects created for ECE4760, all of which have been linked at the top of the webpage and once again linked <a href="http://people.ece.cornell.edu/land/courses/ece4760/FinalProjects/">here</a>.</p>
+               
+                    <h2>Legal Considerations</h2>
+                    <p> To our knowledge our project does not violate any legal considerations. All work belongs to those who have been referenced, and if no reference is made then the work is completed by ourselves. All materials
+                    utilized to create the system have been purchased by ourselves or used from lab with permssion.</p>
+                    
+               </div>
+                </section>
+				<!-- Three -->
+					
+                    <section id="app" class="wrapper style3 fade-up">
+                    <div class="inner">
+                        <h1>Appendices</h1>
+                        <p>The group approves this report for inclusion on the course website.</br>The group approves the video for inclusion on the course youtube channel.</br>
+                        <h2>Program Listing</h2>
+                        <a href="links/targetingSystem.c">targetingSystem.c</a></br>
+                        <a href="links/glcdfont.c">glcdfont.c</a></br>
+                        <a href="links/pt_cornell_1_2_1.h">pt_cornell_1_2_1.h</a></br>
+                        <a href="links/config.h">config.h</a></br>
+                        <a href="links/tft_gfx.c">tft_gfx.c</a></br>
+                        <a href="links/tft_gfx.h">tft_gfx.h</a></br>
+                        <a href="links/tft_master.c">tft_master.c</a></br>
+                        <a href="links/tft_master.h">tft_master.h</a></br>
+                        <a href="links/test.py">Python Targetting Script</a>
+                        <h2>Schematic</h2>
+                        <figure>
+                            <img src="images/schem.bmp" width="800">
+                        </figure>
+                        <h2>Cost Details</h2>
+                        <div class="table-wrapper">
+										<table>
+											<thead>
+												<tr>
+													<th>Name</th>
+                                                    <th>Vendor</th>
+                                                    <th>Cost/Unit</th>
+													<th>Quantity</th>
+													<th>Total Cost</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td>MicroStickII</td>
+													<td>Lab Stock</td>
+                                                    <td>$10</td>
+                                                    <td>1</td>
+													<td>$10</td>
+												</tr>
+												<tr>
+													<td>PIC32</td>
+													<td>Lab Stock</td>
+                                                    <td>$5</td>
+                                                    <td>1</td>
+                                                    <td>$5</td>
+												</tr>
+												<tr>
+													<td>White Board</td>
+													<td>Lab Stock</td>
+                                                    <td>$6</td>
+                                                    <td>1</td>
+                                                    <td>$6</td>
+												</tr>
+                                                <tr>
+													<td>OV7670</td>
+													<td><a href="<a href="https://www.amazon.com/gp/product/B013JRXG24/ref=oh_aui_detailpage_o01_s00?ie=UTF8&psc=1">Amazon</a></td>
+                                                    <td>$7.09</td>
+                                                    <td>1</td>
+                                                    <td>$7.09</td>
+												</tr>
+                                                <tr>
+													<td>Mini Laser Dot Diode</td>
+													<td><a href="<a href="https://www.amazon.com/gp/product/B00R73MCZE/ref=oh_aui_detailpage_o02_s01?ie=UTF8&psc=1">Amazon</a></td>
+                                                    <td>$1</td>
+                                                    <td>1</td>
+                                                    <td>$1</td>
+												</tr>
+                                                <tr>
+													<td>SG90 Micro Servo Motor</td>
+													<td><a href="<a href="https://www.amazon.com/gp/product/B015H5AVZG/ref=oh_aui_detailpage_o02_s00?ie=UTF8&psc=1">Amazon</a></td>
+                                                    <td>$3.40</td>
+                                                    <td>2</td>
+                                                    <td>$6.80</td>
+												</tr>
+                                                <tr>
+													<td>Jumper Cables</td>
+													<td>Lab Stock</td>
+                                                    <td>$.10</td>
+                                                    <td>20</td>
+                                                    <td>$2.00</td>
+												</tr>
+                                                 <tr>
+													<td>Craft Wood</td>
+													<td>Hobby Lobby</td>
+                                                    <td>$8.62</td>
+                                                    <td>1</td>
+                                                    <td>$8.62</td>
+												</tr>
+											</tbody>
+											<tfoot>
+												<tr>
+													<td colspan="4"></td>
+													<td>$46.49</td>
+												</tr>
+											</tfoot>
+										</table>
+									</div>
+                        
+                        <h2>References</h2>
+                        <h3>Datasheets</h3>
+                        <a href="http://www.voti.nl/docs/OV7670.pdf">OV7670 Data Sheet</a></br>
+                        <a href="http://www.microchip.com/design-centers/32-bit">PIC32 Peripheral Libraries for MPLAB C32 Compiler</a></br>
+                        <a href="http://ww1.microchip.com/downloads/en/DeviceDoc/32bitPeripheralLibraryGuide.pdf">PIC32 Reference Manual</a></br>
+                        <a href="http://people.ece.cornell.edu/land/courses/ece4760/PIC32/Microchip_stuff/2xx_datasheet.pdf">PIC32MX2xx datasheet</a></br>
+                        <a href="http://www.ovt.com/download_document.php?type=document&DID=63">SCCB Specification</a></br>
+                        <h3>Figures</h3>
+                        <a href="http://www.ovt.com/download_document.php?type=document&DID=63">[1]SCCB 3-phase Transmission Circle</a></br>
+                        <a href="http://www.voti.nl/docs/OV7670.pdf">[2]OV7670 RGB565 Output Information</a></br></br>
+                        <h3>Standards</h3>
+                        <a href="https://www.lia.org/publications/ansi/Z136-1">[1]ANSI Z136.1</a></br>
+                        <a href="http://www.ovt.com/download_document.php?type=document&DID=63">[2]SCCB</a></br>
+
+                        
+                        
+                        <h2>Work Distribution</h2>
+                        <div class="row">
+                            <div class="6u 12u$(medium)">   
+                                <h3>Tyler Thompson</h3>
+                                <ul class="alt">
+                                    <li>Project Design</li>
+                                    <li>Software Design - Camera</li>
+                                    <li>Software Design - Image Processing</li>
+                                    <li>Background Research</li>
+                                    <li>Software Debugging</li>
+                                    <li>Hardware Design</li>
+                                    <li>Website</li>
+                                </ul>
+                            </div>
+                            <div class="6u$ 12u$(medium)">
+                                <h3>Steve Slaughter</h3>
+                                <ul class="alt">
+                                    <li>Project Design</li>
+                                    <li>Background Research</li>
+                                    <li>Software Design - Aiming Mechanism</li>
+                                    <li>Software Design - Python Targeting Program</li>
+                                    <li>Website Proofing</li>
+                                    <li>Hardware Design</li>
+                                    <li>Structure Construction</li>
+                                </ul>
+                             </div>
+                        </div>
+                        
+                        <h2>Contact</h2>
+                        <p>Tyler Thompson : tt395@cornell.edu</br>Steve Slaughter : sts55@cornell.edu</p>
+                    </div>
+                    </section>
+
+			</div>
+
+		<!-- Footer -->
+			<footer id="footer" class="wrapper style1-alt">
+				<div class="inner">
+					<ul class="menu">
+						<li> Tyler Thompson. Steve Slaughter.</li><li>Webpage design influenced by <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/skel.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
